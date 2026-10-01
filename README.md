@@ -1,8 +1,8 @@
-# Orbital Watch
+# Leo Tracker
 
 A browser-based 3D tracker for Earth-observation satellites in low Earth orbit, plus the design system it's built on.
 
-Orbital Watch propagates satellite positions in real time from two-line element sets (TLEs), draws them around a textured globe, and shows each satellite's live telemetry, orbit path, ground track, next pass over a ground station, and close approaches with other tracked objects. Everything runs client-side; there's no backend.
+Leo Tracker propagates satellite positions in real time from two-line element sets (TLEs), draws them around a textured globe, and shows each satellite's live telemetry, orbit path, ground track, next pass over a ground station, and close approaches with other tracked objects. Everything runs client-side; there's no backend.
 
 **Live demo:** `https://<your-username>.github.io/<repo-name>/`
 **Design system:** `https://<your-username>.github.io/<repo-name>/design-system.html`
@@ -30,11 +30,11 @@ Orbital Watch propagates satellite positions in real time from two-line element 
 ├── assets/
 │   ├── css/
 │   │   ├── tokens.css          # GENERATED — do not edit
-│   │   ├── orbital-watch.css   # Prototype styles
+│   │   ├── leo-tracker.css     # Prototype styles
 │   │   └── design-system.css   # Design-system page styles
 │   ├── js/
 │   │   ├── tokens.js           # GENERATED — do not edit
-│   │   ├── orbital-watch.js    # Prototype logic (scene, propagation, UI)
+│   │   ├── leo-tracker.js      # Prototype logic (scene, propagation, UI)
 │   │   └── design-system.js    # Renders token tables from tokens.js
 │   └── img/
 │       └── earth_atmos_2048.jpg
@@ -66,7 +66,7 @@ All colors, type sizes, spacing, radii, glass-surface values, layout dimensions 
 | Output | Used by | Contents |
 | --- | --- | --- |
 | `assets/css/tokens.css` | Both pages' stylesheets | `:root { --token-name: value; }` |
-| `assets/js/tokens.js` | `orbital-watch.js` (three.js colors), `design-system.js` (token tables) | `window.OW_TOKENS = { values, list }` |
+| `assets/js/tokens.js` | `leo-tracker.js` (three.js colors), `design-system.js` (token tables) | `window.LT_TOKENS = { values, list }` |
 
 So a change in the JSON flows into the CSS, the 3D scene's satellite/orbit colors, and the design-system page at once.
 
@@ -119,7 +119,7 @@ Pull requests run the build but don't deploy.
 
 ## Configuration
 
-Tweak behavior in the `CONFIG` object at the top of `assets/js/orbital-watch.js`:
+Tweak behavior in the `CONFIG` object at the top of `assets/js/leo-tracker.js`:
 
 | Option | Default | What it does |
 | --- | --- | --- |
