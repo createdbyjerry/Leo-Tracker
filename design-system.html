@@ -2,123 +2,221 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Orbital Watch — Design System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Orbital Watch Design System</title>
   <meta name="description" content="Design tokens and components for the Orbital Watch satellite tracker.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%2333ff88' stroke-width='2'/%3E%3Ccircle cx='25' cy='9' r='3' fill='%23ff5533'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%233dfc9b' stroke-width='2'/%3E%3Ccircle cx='25' cy='9' r='3' fill='%23ff6a3d'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/orbital-watch.css">
   <link rel="stylesheet" href="assets/css/design-system.css">
 </head>
 <body>
 <div id="design-system">
-  <div class="ds-header">
-    <span class="ds-eyebrow">LEO / TRACK</span>
-    <h1 class="ds-title">Orbital Watch — Design System</h1>
-    <p class="ds-sub">Token reference for the satellite tracker widget. Every token below is generated from <code class="ds-code">tokens/tokens.json</code> — the same <code class="ds-code">tokens.css</code> the widget loads — so this page can't drift from the product.</p>
-    <p class="ds-sub ds-nav"><a href="./">Open the live prototype</a></p>
-  </div>
+  <header class="ds-header">
+    <span class="ds-eyebrow">LEO / EARTH OBS · v2</span>
+    <h1 class="ds-title">Orbital Watch Design System</h1>
+    <p class="ds-sub">Tokens and components for the satellite tracker. Every value on this page comes from <code class="ds-code">tokens/tokens.json</code>, and every component specimen uses the product's own <code class="ds-code">orbital-watch.css</code>, so the reference can't drift from the app.</p>
+    <nav class="ds-nav" aria-label="Sections">
+      <a href="./">Open the prototype →</a>
+      <a href="#color">Color</a><a href="#type">Type</a><a href="#space">Space</a><a href="#layout">Layout</a><a href="#components">Components</a><a href="#tokens">All tokens</a>
+    </nav>
+  </header>
 
   <noscript><p class="ds-sub">Enable JavaScript to see the token tables; they're rendered from assets/js/tokens.js.</p></noscript>
 
+  <!-- ===== Principles ===== -->
   <section class="ds-section">
+    <h2 class="ds-section-title">Principles</h2>
+    <div class="ds-principles">
+      <div><h3>The planet is the interface</h3><p>The viewport is full-bleed and the globe stays centered. Chrome floats on frosted glass at the edges so imagery and weather stay visible behind it.</p></div>
+      <div><h3>Color means state</h3><p>Orange is a tracked object, green is what you've locked onto, cyan is ground infrastructure. Status and weather colors are separate tiers and never stand in for the accents.</p></div>
+      <div><h3>Say where the data came from</h3><p>Every live value names its source and age. When the app falls back to the simulated model, it says so in amber, never silently.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== Color ===== -->
+  <section class="ds-section" id="color">
     <h2 class="ds-section-title">Color</h2>
+    <p class="ds-sub ds-lede">Two tiers. <strong>Palette</strong> primitives hold raw values; <strong>semantic</strong> tokens alias into them (shown as <code class="ds-code">{palette.signal} → #3dfc9b</code>). Components only ever use semantic tokens, so swapping a palette value re-skins everything.</p>
+    <h3 class="ds-h3">Palette</h3>
+    <div class="ds-swatch-grid ds-swatch-grid--tight" data-ds="palette"></div>
+    <h3 class="ds-h3">Semantic · surface, line, accent, text</h3>
     <div class="ds-swatch-grid" data-ds="color"></div>
+    <h3 class="ds-h3">Status</h3>
+    <div class="ds-swatch-grid" data-ds="status"></div>
+    <h3 class="ds-h3">Weather &amp; sensing</h3>
+    <div class="ds-swatch-grid" data-ds="wx"></div>
+    <div class="ds-ramp">
+      <div class="ds-ramp__bar"></div>
+      <div class="ds-ramp__scale"><span>0% clear</span><span>30%</span><span>70%</span><span>100% overcast</span></div>
+      <p class="ds-sub">Cloud cover is a sequential ramp from <code class="ds-code">--wx-clear</code> through <code class="ds-code">--wx-partly</code> to <code class="ds-code">--wx-overcast</code>: deep water to cloud white, so more cloud reads as more white. Used by the cloud meter, the along-track strip and the catalog bars.</p>
+    </div>
   </section>
 
-  <section class="ds-section">
+  <!-- ===== Typography ===== -->
+  <section class="ds-section" id="type">
     <h2 class="ds-section-title">Typography</h2>
-    <div data-ds="fs"></div>
+    <p class="ds-sub ds-lede">One family, three cuts. <strong>Plex Mono</strong> for anything a reader compares digit by digit, <strong>Plex Sans</strong> for sentences, <strong>Plex Sans Condensed</strong> in caps for labels and section heads. All numbers use <code class="ds-code">tabular-nums</code>.</p>
     <div class="ds-type-fonts" data-ds="font"></div>
+    <h3 class="ds-h3">Scale</h3>
+    <div data-ds="fs"></div>
+    <h3 class="ds-h3">Weight &amp; tracking</h3>
+    <div class="ds-pair">
+      <div data-ds="fw"></div>
+      <div data-ds="tracking"></div>
+    </div>
   </section>
 
-  <section class="ds-section">
-    <h2 class="ds-section-title">Spacing</h2>
-    <div class="ds-space-list" data-ds="space"></div>
+  <!-- ===== Space & radius ===== -->
+  <section class="ds-section" id="space">
+    <h2 class="ds-section-title">Spacing &amp; radius</h2>
+    <div class="ds-pair">
+      <div class="ds-space-list" data-ds="space"></div>
+      <div class="ds-radius-row" data-ds="radius"></div>
+    </div>
   </section>
 
-  <section class="ds-section">
-    <h2 class="ds-section-title">Radius</h2>
-    <div class="ds-radius-row" data-ds="radius"></div>
+  <!-- ===== Layout ===== -->
+  <section class="ds-section" id="layout">
+    <h2 class="ds-section-title">Layout · floating glass HUD</h2>
+    <p class="ds-sub ds-lede">Left column is the fleet: catalog, conjunctions, layers. Right column is the target: mission clock, the selected satellite's readout, and the ground-track map, all <code class="ds-code">--layout-rail-width</code> wide so they share edges. Every panel is inset by <code class="ds-code">--layout-inset</code>. Below 760px the globe pins to the top and the panels scroll up over it as one column.</p>
+    <div class="ds-layout-demo" aria-hidden="true">
+      <div class="ds-layout-glass ds-layout-glass--left">MISSION CONTROL<span>catalog · conjunctions · layers</span><span>--layout-panel-width</span></div>
+      <div class="ds-layout-planet">GLOBE<span>full-bleed, centered</span></div>
+      <div class="ds-layout-glass ds-layout-glass--clock">CLOCK<span>live / sim</span></div>
+      <div class="ds-layout-glass ds-layout-glass--target">TARGET<span>below · next pass · orbit</span><span>--layout-rail-width</span></div>
+      <div class="ds-layout-glass ds-layout-glass--map">GROUND TRACK<span>--layout-map-height</span></div>
+    </div>
+    <p class="ds-sub ds-recipe">Glass recipe: <code class="ds-code">background: var(--glass-bg); backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)); box-shadow: var(--shadow-panel), var(--glass-edge);</code></p>
   </section>
 
-  <section class="ds-section">
-    <h2 class="ds-section-title">Surface, layout &amp; motion</h2>
+  <!-- ===== Components (real product classes) ===== -->
+  <section class="ds-section" id="components">
+    <h2 class="ds-section-title">Components</h2>
+    <div id="prototype-wrapper" class="ds-specimens">
+
+      <div class="ds-spec">
+        <div class="ds-spec__label">Buttons <code class="ds-code">.hud-btn</code> · <code class="ds-code">--accent</code> · <code class="ds-code">--sm</code></div>
+        <div class="ds-spec__row">
+          <button class="hud-btn" type="button">Expand</button>
+          <button class="hud-btn hud-btn--accent" type="button">Update TLEs</button>
+          <button class="hud-btn hud-btn--sm" type="button">Jump to now</button>
+          <button class="hud-btn" type="button" disabled>Updating…</button>
+        </div>
+      </div>
+
+      <div class="ds-spec">
+        <div class="ds-spec__label">Filter chips <code class="ds-code">.chip</code> · sensor tags <code class="ds-code">.sensor-tag</code></div>
+        <div class="ds-spec__row">
+          <div class="chip-row" style="margin:0"><button class="chip is-active" type="button">All</button><button class="chip" type="button">Optical</button><button class="chip" type="button">SAR</button><button class="chip" type="button">Lidar</button></div>
+          <span class="sensor-tag">Optical</span><span class="sensor-tag sensor-tag--sar">SAR</span><span class="sensor-tag sensor-tag--lidar">Lidar</span>
+        </div>
+      </div>
+
+      <div class="ds-spec">
+        <div class="ds-spec__label">Mission clock <code class="ds-code">.clock-bar</code> · <code class="ds-code">.segmented</code> · LIVE and SIM states</div>
+        <div class="ds-spec__row ds-spec__row--top">
+          <div class="clock-bar ds-w-panel">
+            <div class="clock-bar__time"><span class="clock-bar__utc">14:32:07</span><span class="clock-bar__date">2026-10-07 UTC</span></div>
+            <div class="segmented"><button class="segmented__btn is-active" data-mode="live" type="button"><span class="pulse"></span>Live</button><button class="segmented__btn" data-mode="sim" type="button">Sim</button></div>
+          </div>
+          <div class="clock-bar ds-w-panel ds-sim">
+            <div class="clock-bar__time"><span class="clock-bar__utc">19:48:55</span><span class="clock-bar__date">2026-10-07 UTC · 300×</span></div>
+            <div class="segmented"><button class="segmented__btn" data-mode="live" type="button"><span class="pulse"></span>Live</button><button class="segmented__btn is-active" data-mode="sim" type="button">Sim</button></div>
+            <div class="sim-controls">
+              <div class="speed-row"><button class="speed-btn" type="button">1×</button><button class="speed-btn" type="button">60×</button><button class="speed-btn is-active" type="button">300×</button><button class="speed-btn" type="button">1200×</button></div>
+              <div class="speed-row"><button class="hud-btn hud-btn--sm" type="button">Pause</button><button class="hud-btn hud-btn--sm" type="button">Jump to now</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-spec">
+        <div class="ds-spec__label">Catalog rows <code class="ds-code">.catalog-row</code> with cloud-cover mini bar · conjunction row</div>
+        <div class="ds-panel ds-w-panel">
+          <div class="catalog-list">
+            <div class="catalog-row is-active"><span class="dot dot--tracked"></span><span class="catalog-row__text"><span class="catalog-row__name">LANDSAT 9</span><span class="catalog-row__id">NORAD 49260 · Optical</span></span><span class="catalog-row__wx"><span class="mini-bar"><span data-cc="12"></span></span><span class="catalog-row__cc">12%</span></span></div>
+            <div class="catalog-row"><span class="dot dot--tracked"></span><span class="catalog-row__text"><span class="catalog-row__name">SENTINEL-1A</span><span class="catalog-row__id">NORAD 39634 · SAR</span></span><span class="catalog-row__wx"><span class="mini-bar"><span data-cc="64"></span></span><span class="catalog-row__cc">64%</span></span></div>
+            <div class="catalog-row"><span class="dot dot--tracked"></span><span class="catalog-row__text"><span class="catalog-row__name">AQUA</span><span class="catalog-row__id">NORAD 27424 · Optical</span></span><span class="catalog-row__wx"><span class="mini-bar"><span data-cc="97"></span></span><span class="catalog-row__cc">97%</span></span></div>
+          </div>
+          <div class="panel-subhead"><span>CONJUNCTIONS</span><span class="panel-count">&lt; 900 km</span></div>
+          <div class="conjunction-list"><div class="conj-row"><span class="conj-dot"></span><span>SENTINEL-2A ↔ SENTINEL-2B</span><strong>402 km</strong></div></div>
+        </div>
+      </div>
+
+      <div class="ds-spec">
+        <div class="ds-spec__label">Target readout · key stats <code class="ds-code">.key-stats</code> · tabs <code class="ds-code">.tabs</code> · weather below</div>
+        <div class="target-panel ds-w-panel">
+          <div class="readout-head"><div><div class="hud-readout__name">LANDSAT 9</div><div class="hud-readout__sub">NORAD 49260 · 2021-088A</div></div><span class="sensor-tag">Optical</span></div>
+          <div class="hud-readout__instrument">OLI-2 + TIRS-2 · 185 km swath</div>
+          <div class="key-stats">
+            <div class="key-stat"><span class="key-stat__label">Altitude</span><span class="key-stat__value">705.2 km</span></div>
+            <div class="key-stat"><span class="key-stat__label">Velocity</span><span class="key-stat__value">7.51 km/s</span></div>
+            <div class="key-stat"><span class="key-stat__label">Sub-point</span><span class="key-stat__value">32.1N 104.9W</span></div>
+          </div>
+          <div class="tabs"><button class="tab is-active" type="button">Below</button><button class="tab" type="button">Next pass</button><button class="tab" type="button">Orbit</button></div>
+          <div class="wx-now">
+            <div class="cloud-meter"><svg viewBox="0 0 64 64"><circle class="cloud-meter__track" cx="32" cy="32" r="27"></circle><circle class="cloud-meter__fill" cx="32" cy="32" r="27" data-cc-stroke="29"></circle></svg><span class="cloud-meter__value">29%</span></div>
+            <div class="wx-now__text"><span class="wx-now__label">Cloud cover below</span><span class="wx-now__verdict">Clear</span><span class="wx-source">Open-Meteo · 12 s ago</span></div>
+          </div>
+          <div class="hud-grid hud-grid--3">
+            <div class="hud-field"><span class="hud-field__label">Air temp</span><span class="hud-field__value">24.3 °C</span></div>
+            <div class="hud-field"><span class="hud-field__label">Wind</span><span class="hud-field__value">4.1 m/s</span></div>
+            <div class="hud-field"><span class="hud-field__label">Precip.</span><span class="hud-field__value">0.0 mm/h</span></div>
+          </div>
+          <div class="track-strip">
+            <div class="track-strip__head"><span>Cloud cover along track</span><span>next 24 min</span></div>
+            <div class="track-strip__cells" data-ds-strip></div>
+            <div class="track-strip__scale"><span>now</span><span>+12 min</span><span>+24 min</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-spec">
+        <div class="ds-spec__label">Imaging outlook <code class="ds-code">.outlook[data-state]</code> · ok · warn · alert · sar</div>
+        <div class="ds-outlooks">
+          <div class="outlook" data-state="ok"><span class="outlook__chip">Clear window</span><span class="outlook__text">AOS in 42 min. Forecast 12% cloud over Seattle, sun 38° up. Good conditions for a usable scene.</span></div>
+          <div class="outlook" data-state="warn"><span class="outlook__chip">Marginal</span><span class="outlook__text">AOS in 3 h 05 min. Forecast 54% cloud over Seattle. Expect partial coverage.</span></div>
+          <div class="outlook" data-state="alert"><span class="outlook__chip">Night pass</span><span class="outlook__text">Sun is 21° below the horizon at AOS, too dark for reflective bands. Thermal channels only.</span></div>
+          <div class="outlook" data-state="sar"><span class="outlook__chip">All-weather</span><span class="outlook__text">C-band radar sees through cloud and works at night.</span></div>
+        </div>
+      </div>
+
+      <div class="ds-spec">
+        <div class="ds-spec__label">Ground track <code class="ds-code">.map2d</code> · night shading · swath band · track</div>
+        <div class="map2d ds-map">
+          <div class="map2d-head"><span class="panel-label">GROUND TRACK</span><button class="hud-btn hud-btn--sm" type="button">Expand</button></div>
+          <div class="map2d-body">
+            <div class="map2d-bg"></div>
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="map2d-svg" aria-hidden="true">
+              <path class="map2d-night" d="M0,34 C22,34 28,82 50,82 C72,82 78,34 100,34 L100,100 L0,100 Z"></path>
+              <path class="map2d-swath" style="stroke-width:10px" d="M8,10 C20,20 30,60 42,88"></path>
+              <path class="map2d-track-path" d="M8,10 C20,20 30,60 42,88"></path>
+              <circle cx="26" cy="40" r="1.6" class="map2d-dot map2d-dot--selected"></circle>
+              <circle cx="70" cy="30" r="1.4" class="map2d-dot"></circle>
+              <circle cx="15" cy="27" r="1.5" class="map2d-dot map2d-dot--station"></circle>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-spec">
+        <div class="ds-spec__label">Toast <code class="ds-code">.toast</code> · source fallback message</div>
+        <div class="toast ds-toast">Live weather couldn't be reached from this page, so the simulated cloud model is filling in.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Everything else ===== -->
+  <section class="ds-section" id="tokens">
+    <h2 class="ds-section-title">Surface, layout, depth &amp; motion</h2>
     <div data-ds="other"></div>
   </section>
 
-  <section class="ds-section">
-    <h2 class="ds-section-title">Layout — floating glass HUD</h2>
-    <p class="ds-sub" style="margin-bottom: var(--space-8);">There's no top nav — the viewport is full-bleed edge to edge so the planet stays perfectly centered. The brand mark and Update Data button live inside the panel header. One combined "Mission Control" panel (brand + catalog + conjunctions + telemetry) floats top-left, and an expandable 2D ground-track map floats bottom-right — both inset by <code class="ds-code">--layout-inset</code> with a frosted-glass surface so the star field and planet stay visible through them. Below 760px the panels reflow into stacked bars.</p>
-    <div class="ds-layout-demo">
-      <div class="ds-layout-glass ds-layout-glass--left">MISSION<br>CONTROL<br><span>--layout-panel-width</span></div>
-      <div class="ds-layout-planet">PLANET<br><span>full-bleed, centered</span></div>
-      <div class="ds-layout-glass ds-layout-glass--map">GROUND<br>TRACK<br><span>--layout-map-width</span></div>
-    </div>
-    <p class="ds-sub" style="margin-top: var(--space-7);">Glass surface recipe: <code class="ds-code">background: var(--glass-bg); backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));</code></p>
-  </section>
-
-  <section class="ds-section">
-    <h2 class="ds-section-title">Components</h2>
-    <div class="ds-component-row">
-      <div class="ds-panel-demo ds-panel-demo--main">
-        <div class="ds-panel-demo__brandrow">
-          <div class="ds-panel-demo__brand"><span class="ds-eyebrow" style="margin:0;">LEO / TRACK</span><span class="ds-brand-title">ORBITAL WATCH</span></div>
-          <button class="ds-hud-btn ds-hud-btn--accent" type="button">Update Data</button>
-        </div>
-        <div class="ds-panel-demo__header"><span class="ds-panel-demo__label">CATALOG</span><span class="ds-panel-demo__timestamp">10 objects</span></div>
-        <div class="ds-catalog-row ds-catalog-row--active"><span class="ds-dot ds-dot--tracked"></span><span class="ds-catalog-row__text"><span class="ds-catalog-row__name">LANDSAT 9</span><span class="ds-catalog-row__id">NORAD 49260 · 2021-088A</span></span></div>
-        <div class="ds-catalog-row"><span class="ds-dot ds-dot--tracked"></span><span class="ds-catalog-row__text"><span class="ds-catalog-row__name">SENTINEL-2A</span><span class="ds-catalog-row__id">NORAD 40697 · 2015-028A</span></span></div>
-        <div class="ds-subhead">CONJUNCTIONS</div>
-        <div class="ds-conj-row"><span class="ds-conj-dot"></span>LANDSAT 9 ↔ TERRA<strong>412 km</strong></div>
-        <div class="ds-conj-row"><span class="ds-conj-dot"></span>AQUA ↔ SUOMI NPP<strong>803 km</strong></div>
-        <div class="ds-subhead ds-subhead--split"><span>TELEMETRY</span><span class="ds-panel-demo__timestamp">Static demo data</span></div>
-        <div class="ds-panel-demo__name">LANDSAT 9</div>
-        <div class="ds-panel-demo__sub">Int'l Designator: 2021-088A</div>
-        <div class="ds-panel-demo__station">Ground station: SEATTLE, US</div>
-        <div class="ds-panel-demo__grid">
-          <div class="ds-panel-demo__field"><span>Altitude</span><strong>705.2 km</strong></div>
-          <div class="ds-panel-demo__field"><span>Velocity</span><strong>7.51 km/s</strong></div>
-          <div class="ds-panel-demo__field"><span>Latitude</span><strong>32.14°</strong></div>
-          <div class="ds-panel-demo__field"><span>Longitude</span><strong>-104.87°</strong></div>
-          <div class="ds-panel-demo__field"><span>Inclination</span><strong>98.22°</strong></div>
-          <div class="ds-panel-demo__field"><span>Period</span><strong>98.8 min</strong></div>
-          <div class="ds-panel-demo__field"><span>Apogee</span><strong>704 km</strong></div>
-          <div class="ds-panel-demo__field"><span>Perigee</span><strong>696 km</strong></div>
-          <div class="ds-panel-demo__field"><span>Eccentricity</span><strong>0.0001</strong></div>
-          <div class="ds-panel-demo__field"><span>RAAN</span><strong>50.00°</strong></div>
-          <div class="ds-panel-demo__field"><span>Arg. of Perigee</span><strong>90.00°</strong></div>
-          <div class="ds-panel-demo__field"><span>Mean Anomaly</span><strong>270.10°</strong></div>
-          <div class="ds-panel-demo__field"><span>Epoch (UTC)</span><strong>2024-01-01 12:00</strong></div>
-          <div class="ds-panel-demo__field"><span>Status</span><strong>Active</strong></div>
-          <div class="ds-panel-demo__field"><span>Next AOS</span><strong>14:32 UTC</strong></div>
-          <div class="ds-panel-demo__field"><span>Max Elev.</span><strong>61.4°</strong></div>
-          <div class="ds-panel-demo__field"><span>Next LOS</span><strong>14:41 UTC</strong></div>
-          <div class="ds-panel-demo__field"><span>Pass Duration</span><strong>9.2 min</strong></div>
-        </div>
-        <div class="ds-legend-demo">
-          <div class="ds-legend-row"><span class="ds-dot ds-dot--tracked"></span>Tracked</div>
-          <div class="ds-legend-row"><span class="ds-dot ds-dot--selected"></span>Selected / orbit</div>
-          <div class="ds-legend-row"><span class="ds-dot ds-dot--station"></span>Ground station</div>
-        </div>
-      </div>
-      <div class="ds-map-demo">
-        <div class="ds-map-demo__head"><span>GROUND TRACK</span><button class="ds-hud-btn" type="button">Expand</button></div>
-        <div class="ds-map-demo__body">
-          <div class="ds-map-demo__bg"></div>
-          <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="ds-map-demo__svg">
-            <path d="M20,70 L35,55 L50,42 L65,50 L80,65" class="ds-map-demo__path"></path>
-            <circle cx="65" cy="50" r="1.6" class="ds-map-demo__dot ds-map-demo__dot--selected"></circle>
-            <circle cx="30" cy="30" r="1.4" class="ds-map-demo__dot"></circle>
-            <circle cx="55" cy="65" r="1.5" class="ds-map-demo__dot ds-map-demo__dot--station"></circle>
-          </svg>
-        </div>
-      </div>
-    </div>
-    <p class="ds-sub" style="margin-top: var(--space-7);">The map's earth image sits on its own layer at 50% opacity; the track path and dots are a separate SVG layer at full opacity so they stay vivid: <code class="ds-code">.map2d-bg { opacity: 0.5 }</code> · <code class="ds-code">.map2d-track-path { opacity: 1 }</code>. The expand button toggles <code class="ds-code">.is-expanded</code> to enlarge the window in place.</p>
-  </section>
+  <footer class="ds-footer">Edit <code class="ds-code">tokens/tokens.json</code> → <code class="ds-code">npm run build:tokens</code> → commit the JSON and both generated files.</footer>
 </div>
 
 <script src="assets/js/tokens.js"></script>

@@ -2,71 +2,203 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Orbital Watch — LEO Satellite Tracker</title>
-  <meta name="description" content="Real-time 3D tracker for Earth-observation satellites in low Earth orbit, with ground track, pass predictions and conjunction alerts.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%2333ff88' stroke-width='2'/%3E%3Ccircle cx='25' cy='9' r='3' fill='%23ff5533'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Orbital Watch</title>
+  <meta name="description" content="Real-time 3D tracker for Earth-observation satellites in low Earth orbit, with live or simulated weather, imaging outlook, ground track, pass predictions and conjunction alerts.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%233dfc9b' stroke-width='2'/%3E%3Ccircle cx='25' cy='9' r='3' fill='%23ff6a3d'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="assets/css/tokens.css">
   <link rel="stylesheet" href="assets/css/orbital-watch.css">
 </head>
 <body>
-  <div id="prototype-wrapper">
+  <div id="prototype-wrapper" data-mode="live">
     <div class="hud-main">
       <div id="canvas-container">
         <div class="scanline"></div>
       </div>
 
+      <!-- ===== Mission Control (left) ===== -->
       <aside class="side-panel side-panel--main" aria-label="Mission control">
         <div class="panel-head panel-head--brand">
           <div class="brand">
-            <span class="brand-eyebrow">LEO / TRACK</span>
+            <span class="brand-eyebrow">LEO / EARTH OBS</span>
             <span class="brand-title">ORBITAL WATCH</span>
           </div>
-          <button id="update-tle-btn" class="hud-btn hud-btn--accent" type="button">Update Data</button>
+          <button id="update-tle-btn" class="hud-btn hud-btn--accent" type="button" title="Fetch current orbital elements from CelesTrak">Update TLEs</button>
         </div>
 
-        <div class="panel-subhead panel-subhead--first">
-          <span>CATALOG</span><span id="cat-count" class="panel-count">— objects</span>
-        </div>
-        <div id="catalog-list" class="catalog-list"></div>
+        <section class="panel-section" aria-labelledby="cat-head">
+          <div class="panel-subhead panel-subhead--first">
+            <span id="cat-head">CATALOG</span><span id="cat-count" class="panel-count">— objects</span>
+          </div>
+          <div class="chip-row" id="sensor-filter" role="radiogroup" aria-label="Filter by sensor type">
+            <button class="chip is-active" type="button" role="radio" aria-checked="true" data-filter="all">All</button>
+            <button class="chip" type="button" role="radio" aria-checked="false" data-filter="optical">Optical</button>
+            <button class="chip" type="button" role="radio" aria-checked="false" data-filter="sar">SAR</button>
+            <button class="chip" type="button" role="radio" aria-checked="false" data-filter="lidar">Lidar</button>
+          </div>
+          <div id="catalog-list" class="catalog-list"></div>
+        </section>
 
-        <div class="panel-subhead"><span>CONJUNCTIONS</span></div>
-        <div id="conjunction-list" class="conjunction-list" aria-live="polite"></div>
+        <section class="panel-section" aria-labelledby="conj-head">
+          <div class="panel-subhead"><span id="conj-head">CONJUNCTIONS</span><span class="panel-count">&lt; 900 km</span></div>
+          <div id="conjunction-list" class="conjunction-list" aria-live="polite"></div>
+        </section>
 
-        <div class="panel-subhead">
-          <span>TELEMETRY</span>
-          <span id="last-updated" class="panel-timestamp">Static demo data</span>
-        </div>
-        <div id="sat-hint" class="hud-hint">AWAITING TARGET LOCK — click a satellite to view telemetry</div>
-        <div id="hud-readout" class="hud-readout" style="display:none;">
-          <div class="hud-readout__name" id="sat-name">—</div>
-          <div class="hud-readout__sub" id="sat-designation">Int'l Designator: —</div>
-          <div class="hud-readout__station" id="station-line">Ground station: —</div>
-          <div id="field-grid" class="hud-grid"></div>
-        </div>
+        <section class="panel-section layers" id="layers">
+          <button class="panel-subhead layers__head" id="layers-toggle" type="button" aria-expanded="true" aria-controls="layers-body">
+            <span>LAYERS</span><span class="layers__caret" aria-hidden="true"></span>
+          </button>
+          <div class="layers__body" id="layers-body">
+            <fieldset class="layer-group">
+              <legend>Base imagery <span class="layer-date" title="NASA GIBS daily mosaic date">—</span></legend>
+              <label class="layer-opt"><input type="radio" name="base" value="bluemarble" checked><span>Blue Marble</span></label>
+              <label class="layer-opt"><input type="radio" name="base" value="MODIS_Terra_CorrectedReflectance_TrueColor"><span>Terra · MODIS</span></label>
+              <label class="layer-opt"><input type="radio" name="base" value="VIIRS_SNPP_CorrectedReflectance_TrueColor"><span>SNPP · VIIRS</span></label>
+              <label class="layer-opt"><input type="radio" name="base" value="VIIRS_NOAA20_CorrectedReflectance_TrueColor"><span>NOAA-20 · VIIRS</span></label>
+            </fieldset>
+            <fieldset class="layer-group">
+              <legend>Overlays</legend>
+              <label class="layer-opt"><input type="checkbox" id="ov-weather" checked><span id="ov-weather-label">Precipitation · IMERG</span></label>
+              <label class="layer-opt"><input type="checkbox" id="ov-night" checked><span>Day / night</span></label>
+              <label class="layer-opt"><input type="checkbox" id="ov-swath" checked><span>Sensor swath</span></label>
+            </fieldset>
+          </div>
+        </section>
 
         <div class="legend">
           <div class="legend-row"><span class="dot dot--tracked"></span>Tracked</div>
           <div class="legend-row"><span class="dot dot--selected"></span>Selected / orbit</div>
           <div class="legend-row"><span class="dot dot--station"></span>Ground station</div>
+          <a class="legend-link" href="design-system.html">Design system →</a>
         </div>
       </aside>
 
+      <!-- ===== Right rail: mission clock + target ===== -->
+      <div class="rail">
+        <div class="clock-bar" aria-label="Mission clock">
+          <div class="clock-bar__time">
+            <span class="clock-bar__utc" id="clock-utc">--:--:--</span>
+            <span class="clock-bar__date" id="clock-date">—</span>
+          </div>
+          <div class="segmented" role="radiogroup" aria-label="Data source">
+            <button class="segmented__btn is-active" type="button" role="radio" aria-checked="true" data-mode="live"><span class="pulse"></span>Live</button>
+            <button class="segmented__btn" type="button" role="radio" aria-checked="false" data-mode="sim">Sim</button>
+          </div>
+          <div class="sim-controls" id="sim-controls" hidden>
+            <div class="speed-row" role="radiogroup" aria-label="Simulation speed">
+              <button class="speed-btn is-active" type="button" data-speed="1" role="radio" aria-checked="true">1×</button>
+              <button class="speed-btn" type="button" data-speed="60" role="radio" aria-checked="false">60×</button>
+              <button class="speed-btn" type="button" data-speed="300" role="radio" aria-checked="false">300×</button>
+              <button class="speed-btn" type="button" data-speed="1200" role="radio" aria-checked="false">1200×</button>
+            </div>
+            <div class="speed-row">
+              <button class="hud-btn hud-btn--sm" type="button" id="sim-pause">Pause</button>
+              <button class="hud-btn hud-btn--sm" type="button" id="sim-now">Jump to now</button>
+            </div>
+          </div>
+        </div>
+
+        <section class="target-panel" aria-labelledby="tel-head">
+          <div class="panel-subhead panel-subhead--first">
+            <span id="tel-head">TARGET</span>
+            <span id="last-updated" class="panel-timestamp">Demo TLEs · 2024-01-01 epoch</span>
+          </div>
+          <div id="sat-hint" class="hud-hint">AWAITING TARGET LOCK — click a satellite to view telemetry</div>
+          <div id="hud-readout" class="hud-readout" hidden>
+            <div class="readout-head">
+              <div>
+                <div class="hud-readout__name" id="sat-name">—</div>
+                <div class="hud-readout__sub" id="sat-designation">—</div>
+              </div>
+              <span class="sensor-tag" id="sat-sensor-tag">—</span>
+            </div>
+            <div class="hud-readout__instrument" id="sat-instrument">—</div>
+
+            <div class="key-stats" id="key-stats">
+              <div class="key-stat"><span class="key-stat__label">Altitude</span><span class="key-stat__value" id="ks-alt">—</span></div>
+              <div class="key-stat"><span class="key-stat__label">Velocity</span><span class="key-stat__value" id="ks-vel">—</span></div>
+              <div class="key-stat"><span class="key-stat__label">Sub-point</span><span class="key-stat__value" id="ks-pos">—</span></div>
+            </div>
+
+            <div class="tabs" role="tablist" aria-label="Telemetry views">
+              <button class="tab is-active" role="tab" id="tab-wx" aria-selected="true" aria-controls="pane-wx" type="button">Below</button>
+              <button class="tab" role="tab" id="tab-pass" aria-selected="false" aria-controls="pane-pass" type="button" tabindex="-1">Next pass</button>
+              <button class="tab" role="tab" id="tab-orbit" aria-selected="false" aria-controls="pane-orbit" type="button" tabindex="-1">Orbit</button>
+            </div>
+
+            <!-- Weather under the satellite -->
+            <div class="tab-pane" role="tabpanel" id="pane-wx" aria-labelledby="tab-wx">
+              <div class="wx-now">
+                <div class="cloud-meter" id="wx-meter" aria-hidden="true">
+                  <svg viewBox="0 0 64 64"><circle class="cloud-meter__track" cx="32" cy="32" r="27"></circle><circle class="cloud-meter__fill" id="wx-meter-fill" cx="32" cy="32" r="27"></circle></svg>
+                  <span class="cloud-meter__value" id="wx-cloud">—</span>
+                </div>
+                <div class="wx-now__text">
+                  <span class="wx-now__label">Cloud cover below</span>
+                  <span class="wx-now__verdict" id="wx-verdict">—</span>
+                  <span class="wx-source" id="wx-source">—</span>
+                </div>
+              </div>
+              <div class="hud-grid hud-grid--3">
+                <div class="hud-field"><span class="hud-field__label">Air temp</span><span class="hud-field__value" id="wx-temp">—</span></div>
+                <div class="hud-field"><span class="hud-field__label">Wind</span><span class="hud-field__value" id="wx-wind">—</span></div>
+                <div class="hud-field"><span class="hud-field__label">Precip.</span><span class="hud-field__value" id="wx-precip">—</span></div>
+                <div class="hud-field"><span class="hud-field__label">Sun elev.</span><span class="hud-field__value" id="wx-sun">—</span></div>
+                <div class="hud-field"><span class="hud-field__label">Local time</span><span class="hud-field__value" id="wx-local">—</span></div>
+                <div class="hud-field"><span class="hud-field__label">Imaging</span><span class="hud-field__value" id="wx-imaging">—</span></div>
+              </div>
+              <div class="track-strip">
+                <div class="track-strip__head"><span>Cloud cover along track</span><span id="strip-span">next 24 min</span></div>
+                <div class="track-strip__cells" id="track-strip" role="img" aria-label="Cloud cover along the upcoming ground track"></div>
+                <div class="track-strip__scale"><span>now</span><span>+12 min</span><span>+24 min</span></div>
+              </div>
+            </div>
+
+            <!-- Next pass over the ground station -->
+            <div class="tab-pane" role="tabpanel" id="pane-pass" aria-labelledby="tab-pass" hidden>
+              <div class="hud-readout__station" id="station-line">Ground station: —</div>
+              <div class="outlook" id="outlook">
+                <span class="outlook__chip" id="outlook-chip">—</span>
+                <span class="outlook__text" id="outlook-text">—</span>
+              </div>
+              <div class="hud-grid">
+                <div class="hud-field"><span class="hud-field__label">Next AOS</span><span class="hud-field__value" id="sat-aos">—</span></div>
+                <div class="hud-field"><span class="hud-field__label">Next LOS</span><span class="hud-field__value" id="sat-los">—</span></div>
+                <div class="hud-field"><span class="hud-field__label">Max elev.</span><span class="hud-field__value" id="sat-maxel">—</span></div>
+                <div class="hud-field"><span class="hud-field__label">Duration</span><span class="hud-field__value" id="sat-passdur">—</span></div>
+                <div class="hud-field"><span class="hud-field__label">Cloud at AOS</span><span class="hud-field__value" id="sat-aoscloud">—</span></div>
+                <div class="hud-field"><span class="hud-field__label">Sun at AOS</span><span class="hud-field__value" id="sat-aossun">—</span></div>
+              </div>
+            </div>
+
+            <!-- Orbital elements -->
+            <div class="tab-pane" role="tabpanel" id="pane-orbit" aria-labelledby="tab-orbit" hidden>
+              <div id="field-grid" class="hud-grid"></div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ===== Ground track (bottom right) ===== -->
       <div class="map2d" id="map2d">
         <div class="map2d-head">
           <span class="panel-label">GROUND TRACK</span>
-          <button id="map2d-expand-btn" class="hud-btn" type="button" title="Expand" aria-expanded="false">Expand</button>
+          <button id="map2d-expand-btn" class="hud-btn hud-btn--sm" type="button" title="Expand" aria-expanded="false">Expand</button>
         </div>
         <div class="map2d-body">
           <div class="map2d-bg"></div>
           <svg id="map2d-svg" viewBox="0 0 100 100" preserveAspectRatio="none" class="map2d-svg" aria-label="Ground track map">
+            <path id="map2d-night" class="map2d-night"></path>
+            <path id="map2d-swath" class="map2d-swath"></path>
             <path id="map2d-track" class="map2d-track-path"></path>
           </svg>
         </div>
       </div>
+
+      <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
     </div>
   </div>
 
