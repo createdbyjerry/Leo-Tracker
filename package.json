@@ -1,8 +1,8 @@
 {
   "name": "orbital-watch",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "description": "Real-time 3D tracker for Earth-observation satellites in LEO, plus its design system.",
+  "description": "Real-time 3D tracker for Earth-observation satellites in LEO with live or simulated weather, plus its design system.",
   "scripts": {
     "build:tokens": "node scripts/build-tokens.js",
     "check:tokens": "node scripts/build-tokens.js --check",

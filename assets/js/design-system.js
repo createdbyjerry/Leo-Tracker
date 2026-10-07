@@ -12,7 +12,8 @@
     return;
   }
 
-  const KNOWN = ["color", "font", "fs", "space", "radius"];
+  // Groups with a dedicated section; everything else lands in the table at the bottom.
+  const KNOWN = ["palette", "color", "status", "wx", "font", "fw", "fs", "tracking", "space", "radius"];
   const tokens = data.list;
   const byGroup = (g) => tokens.filter((t) => t.group === g);
   const others = tokens.filter((t) => !KNOWN.includes(t.group));
@@ -30,16 +31,29 @@
     if (host) nodes.forEach((n) => host.appendChild(n));
   }
 
-  // Color
-  mount("color", byGroup("color").map((t) => {
-    const swatch = el("div", "ds-swatch");
+  // Color swatches (palette, semantic, status, weather)
+  function swatch(t) {
+    const s = el("div", "ds-swatch");
     const chip = el("div", "ds-swatch-color");
-    chip.style.background = cssVar(t);
+    const fill = el("i");
+    fill.style.background = cssVar(t);
+    chip.appendChild(fill);
     const meta = el("div", "ds-swatch-meta");
     meta.append(el("span", "ds-swatch-name", "--" + t.name), el("span", "ds-swatch-value", valueLabel(t)));
     if (t.description) meta.append(el("span", "ds-swatch-desc", t.description));
-    swatch.append(chip, meta);
-    return swatch;
+    s.append(chip, meta);
+    return s;
+  }
+  ["palette", "color", "status", "wx"].forEach((g) => mount(g, byGroup(g).map(swatch)));
+
+  // Font families
+  mount("font", byGroup("font").map((t) => {
+    const card = el("div", "ds-font-card");
+    const glyphs = el("div", "ds-font-card__glyphs", t.name === "font-condensed" ? "TARGET LOCK" : "Aa 705.2 km");
+    glyphs.style.fontFamily = cssVar(t);
+    if (t.name === "font-condensed") { glyphs.style.fontWeight = "600"; glyphs.style.letterSpacing = "0.14em"; glyphs.style.fontSize = "26px"; }
+    card.append(glyphs, el("span", "ds-font-card__name", "--" + t.name + " · " + t.value.split(",")[0].replace(/'/g, "")), el("span", "ds-font-card__use", t.description));
+    return card;
   }));
 
   // Type scale
@@ -47,16 +61,28 @@
     const row = el("div", "ds-type-row");
     const sample = el("span", "ds-type-sample", t.description || "The quick brown fox");
     sample.style.fontSize = cssVar(t);
+    sample.style.fontFamily = "var(--font-mono)";
     row.append(el("span", "ds-type-label", "--" + t.name + " / " + t.value), sample);
     return row;
   }));
 
-  // Font families
-  mount("font", byGroup("font").map((t) => {
-    const row = el("div");
-    const sample = el("span", null, t.value.split(",")[0].replace(/'/g, "") + (t.description ? " — " + t.description : ""));
-    sample.style.fontFamily = cssVar(t);
-    row.append(el("span", "ds-type-label", "--" + t.name), sample);
+  // Weights and tracking
+  mount("fw", byGroup("fw").map((t) => {
+    const row = el("div", "ds-type-row");
+    const sample = el("span", "ds-type-sample", "LANDSAT 9 · 7.51 km/s");
+    sample.style.fontWeight = cssVar(t);
+    sample.style.fontFamily = "var(--font-mono)";
+    row.append(el("span", "ds-type-label", "--" + t.name + " / " + t.value), sample);
+    return row;
+  }));
+  mount("tracking", byGroup("tracking").map((t) => {
+    const row = el("div", "ds-type-row");
+    const sample = el("span", "ds-type-sample", t.description || "LETTER SPACING");
+    sample.style.letterSpacing = cssVar(t);
+    sample.style.fontFamily = "var(--font-condensed)";
+    sample.style.fontWeight = "600";
+    sample.style.textTransform = "uppercase";
+    row.append(el("span", "ds-type-label", "--" + t.name + " / " + t.value), sample);
     return row;
   }));
 
@@ -78,14 +104,45 @@
     return sample;
   }));
 
-  // Everything else (glass, shadow, layout, motion, and any new groups)
-  mount("other", others.map((t) => {
+  // Everything else (glass, shadow, layout, z, motion, and any new groups), grouped
+  let lastGroup = null;
+  const rows = [];
+  others.forEach((t) => {
+    if (t.group !== lastGroup) { rows.push(el("div", "ds-token-group", t.group)); lastGroup = t.group; }
     const row = el("div", "ds-token-row");
     row.append(
       el("span", "ds-type-label", "--" + t.name),
       el("span", "ds-token-value", valueLabel(t)),
       el("span", "ds-token-desc", t.description || "")
     );
-    return row;
-  }));
+    rows.push(row);
+  });
+  mount("other", rows);
+
+  // Specimen data colors: cloud-cover ramp from the wx tokens, same math as the app
+  const v = data.values;
+  const ramp = ["wx-clear-rgb", "wx-partly-rgb", "wx-overcast-rgb"].map((k) => (v[k] || "0, 0, 0").split(",").map(Number));
+  function cloudColor(pct) {
+    const t = Math.max(0, Math.min(1, pct / 100)) * 2, i = Math.min(1, Math.floor(t)), f = t - i;
+    const c = ramp[i].map((a, k) => Math.round(a + (ramp[i + 1][k] - a) * f));
+    return "rgb(" + c.join(",") + ")";
+  }
+  document.querySelectorAll("[data-cc]").forEach((n) => {
+    const pct = Number(n.dataset.cc);
+    n.style.background = cloudColor(pct);
+    n.style.width = Math.max(4, pct) + "%";
+  });
+  document.querySelectorAll("[data-cc-stroke]").forEach((n) => {
+    const pct = Number(n.dataset.ccStroke);
+    n.style.stroke = cloudColor(pct);
+    n.style.strokeDashoffset = String(169.6 * (1 - pct / 100));
+  });
+  const strip = document.querySelector("[data-ds-strip]");
+  if (strip) [8, 12, 22, 35, 51, 72, 88, 96, 90, 64, 40, 26].forEach((pct, k) => {
+    const c = el("span");
+    c.style.background = cloudColor(pct);
+    if (k > 8) c.className = "is-night";
+    c.title = pct + "% cloud";
+    strip.appendChild(c);
+  });
 })();
